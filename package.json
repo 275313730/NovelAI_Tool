@@ -8,7 +8,7 @@
     "dev": "vue-cli-service build && electron .",
     "build": "vue-cli-service build",
     "serve": "vue-cli-service serve",
-    "package": "vue-cli-service build && electron-packager . NovelAI_Tool --platform=win32 --ignore=images ignore=.DS_Store --arch=x64 --out=./out --app-version=1.3.0 --overwrite --download.mirrorOptions.mirror=https://npm.taobao.org/mirrors/electron/"
+    "package": "vue-cli-service build && electron-packager . NovelAI_Tool --platform=win32 --ignore=images ignore=.DS_Store --arch=x64 --out=./out --overwrite --download.mirrorOptions.mirror=https://npm.taobao.org/mirrors/electron/"
   },
   "dependencies": {
     "@element-plus/icons-vue": "^2.0.10",
