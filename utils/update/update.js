@@ -56,9 +56,6 @@ async function checkUpdate(env, callback) {
             defaultId: 1,
           });
           updateInfo.chooseUpdate = updateDialog == 1;
-          if (updateDialog == 1) {
-            env.mainWindow.webContents.send("update-content", 1);
-          }
         }
       }
 
@@ -72,6 +69,9 @@ async function checkUpdate(env, callback) {
           callback(updateStatus);
         });
       } else {
+        if (env.isPackaged) {
+          fs.writeFileSync(TOOLINFO_PATH, JSON.stringify(toolInfo));
+        }
         callback(false);
       }
     }
@@ -79,17 +79,28 @@ async function checkUpdate(env, callback) {
 }
 
 function updateVersion(env, updateInfo, callback) {
+  const RESOURCES_PATH = path.resolve(env.ROOT_PATH, "./resources");
+  const RESOURCES_OLD_PATH = path.resolve(env.ROOT_PATH, "./resourcesOld");
   const ZIP_PATH = path.resolve(env.ROOT_PATH, `./${updateInfo.newVersion}.zip`);
-  const UNZIP_PATH = env.ROOT_PATH;
+
   let stream = fs.createWriteStream(ZIP_PATH);
-  env.mainWindow.webContents.send("update-content", 2);
+  env.mainWindow.webContents.send("update-content", 1);
   request(updateInfo.downloadUrl)
     .pipe(stream)
     .on("close", (err) => {
-      env.mainWindow.webContents.send("update-content", 3);
-      unzipFile(ZIP_PATH, UNZIP_PATH, (isUnziped) => {
-        if (isUnziped) {
-          callback(true);
+      env.mainWindow.webContents.send("update-content", 2);
+      let isUnziped = false;
+      let checkUnzip = setInterval(() => {
+        if (!isUnziped) return;
+        clearInterval(checkUnzip);
+        removeDir(RESOURCES_OLD_PATH);
+        callback(true);
+      }, 1000);
+      fs.renameSync(RESOURCES_PATH, RESOURCES_OLD_PATH);
+      unzipFile(ZIP_PATH, env.ROOT_PATH, (status) => {
+        env.mainWindow.webContents.send("update-content", 3);
+        if (status) {
+          isUnziped = true;
         } else {
           callback(false);
         }
@@ -115,6 +126,22 @@ function unzipFile(ZIP_PATH, UNZIP_PATH, callback) {
       zip.close();
     });
   });
+}
+
+function removeDir(dir) {
+  let files = fs.readdirSync(dir);
+  for (let file of files) {
+    let newPath = path.join(dir, file);
+    let stat = fs.statSync(newPath);
+    if (stat.isDirectory()) {
+      //如果是文件夹就递归下去
+      removeDir(newPath);
+    } else {
+      //删除文件
+      fs.unlinkSync(newPath);
+    }
+  }
+  fs.rmdirSync(dir); //如果文件夹是空的，就将自己删除掉
 }
 
 module.exports = checkUpdate;
