@@ -32,7 +32,7 @@ export default {
 }
 
 .tag-from {
-  z-index: 9;
+  z-index: 1;
   position: absolute;
   top: 4px;
   left: 4px;

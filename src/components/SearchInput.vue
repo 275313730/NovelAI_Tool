@@ -83,6 +83,7 @@ export default {
   padding-bottom: 10px;
   width: 100%;
   top: 0px;
+  z-index: 2;
 }
 
 .el-autocomplete {
