@@ -18,7 +18,7 @@ export default {
   data() {
     return {
       view: {
-        currentView: "home",
+        currentView: "gallery",
       },
     };
   },
