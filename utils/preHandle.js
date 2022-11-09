@@ -13,7 +13,7 @@ function handleEnv(app) {
     STATIC_PATH,
     platform: process.platform,
     mainWindow: null,
-    eletronApp: app,
+    app,
     APP_URL: "http://localhost:3000",
   };
 }

@@ -6,6 +6,7 @@
       :src="image.imageUrl"
       :preview-src-list="imagesUrlArray"
       :initial-index="index"
+      :hide-on-click-modal="true"
       fit="cover"
       @error="loadingError"
     >
@@ -16,7 +17,7 @@
 
 <script>
 export default {
-  props: ["imagesUrlArray", "image","index"],
+  props: ["imagesUrlArray", "image", "index"],
   methods: {
     loadingError() {
       this.$emit("loadingError", this.image.imageUrl);

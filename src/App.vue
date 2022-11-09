@@ -1,7 +1,7 @@
 <template>
   <div id="app">
-    <Home />
-    <Gallery v-if="currentView == 'gallery'" />
+    <Home :view="view" v-if="view.currentView == 'home'" />
+    <Gallery v-if="view.currentView == 'gallery'" />
   </div>
 </template>
 
@@ -17,7 +17,9 @@ export default {
   },
   data() {
     return {
-      currentView: "",
+      view: {
+        currentView: "home",
+      },
     };
   },
 };
@@ -38,6 +40,6 @@ body {
   width: 100%;
   margin: 0;
   padding: 0;
-  overflow-x: hidden;
+  overflow: hidden;
 }
 </style>

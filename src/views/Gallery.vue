@@ -1,48 +1,46 @@
 <template>
-  <div id="app">
-    <div>
-      <Background @showImageDirs="showImageDirs" :tagsData="tagsData" />
-      <Settings
-        v-show="loadSettings.imageDirs && imagesCache.length == 0"
-        :userSettings="userSettings"
-        :loadSettings="loadSettings"
-        @getImagesData="getImagesData"
-      />
-    </div>
-    <div v-if="imagesCache.length > 0">
-      <tag-filter
-        :filterSettings="filterSettings"
-        :tagsData="tagsData"
-        :allKeywordsArray="allKeywordsArray"
-      />
-      <search-input
-        @searchImage="searchImage"
-        :allKeywordsArray="allKeywordsArray"
-        :filterSettings="filterSettings"
-      />
-      <div id="images-wrapper" class="demo-image__preview">
-        <el-row class="infinite-list" style="overflow: auto" :gutter="12">
-          <el-col
-            :span="24 / userSettings.rowLimitCount"
-            v-for="i in imagesCount"
-            :key="currentImages[i - 1].imageUrl"
-          >
-            <el-card>
-              <image-preview
-                @loadingError="loadingError"
-                :imagesUrlArray="imagesUrlArray"
-                :image="currentImages[i - 1]"
-                :index="i - 1"
-              />
-              <pop-over
-                :image="currentImages[i - 1]"
-                :userSettings="userSettings"
-                :tagsData="tagsData"
-              />
-            </el-card>
-          </el-col>
-        </el-row>
-      </div>
+  <div>
+    <Background @showImageDirs="showImageDirs" :tagsData="tagsData" />
+    <Settings
+      v-show="loadSettings.imageDirs && imagesCache.length == 0"
+      :userSettings="userSettings"
+      :loadSettings="loadSettings"
+      @getImagesData="getImagesData"
+    />
+  </div>
+  <div v-if="imagesCache.length > 0">
+    <tag-filter
+      :filterSettings="filterSettings"
+      :tagsData="tagsData"
+      :allKeywordsArray="allKeywordsArray"
+    />
+    <search-input
+      @searchImage="searchImage"
+      :allKeywordsArray="allKeywordsArray"
+      :filterSettings="filterSettings"
+    />
+    <div id="images-wrapper" class="demo-image__preview">
+      <el-row class="infinite-list" style="overflow: auto" :gutter="12">
+        <el-col
+          :span="24 / userSettings.rowLimitCount"
+          v-for="i in imagesCount"
+          :key="currentImages[i - 1].imageUrl"
+        >
+          <el-card>
+            <image-preview
+              @loadingError="loadingError"
+              :imagesUrlArray="imagesUrlArray"
+              :image="currentImages[i - 1]"
+              :index="i - 1"
+            />
+            <pop-over
+              :image="currentImages[i - 1]"
+              :userSettings="userSettings"
+              :tagsData="tagsData"
+            />
+          </el-card>
+        </el-col>
+      </el-row>
     </div>
   </div>
 </template>

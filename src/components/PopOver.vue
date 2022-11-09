@@ -1,34 +1,100 @@
 <template>
   <div id="popover-wrapper">
-    <el-popover v-if="!userSettings.classifyPrompt" style="padding-top:6px" placement="top" title="" :width="200"
-      trigger="hover" :content="image.description">
+    <el-popover
+      v-if="!userSettings.classifyPrompt"
+      style="padding-top: 6px"
+      placement="top"
+      trigger="hover"
+      :width="200"
+      :content="image.description"
+      :show-after="150"
+    >
       <template #reference>
-        <el-button class="popover-button" @click="copyData(image.description)" slot="reference">关键词</el-button>
+        <el-button
+          class="popover-button"
+          v-clipboard="decodeURI(image.description)"
+          v-clipboard:success="copySuccess"
+          v-clipboard:error="copyError"
+          slot="reference"
+          >关键词</el-button
+        >
       </template>
     </el-popover>
-    <el-popover v-if="userSettings.classifyPrompt" style="padding-top:6px;" placement="top" title="" :width="400"
-      trigger="hover">
+    <el-popover
+      v-if="userSettings.classifyPrompt"
+      style="padding-top: 6px"
+      placement="top"
+      trigger="hover"
+      :width="400"
+      :show-after="150"
+    >
       <el-table max-height="300" :data="getClassifyPrompt()">
-        <el-table-column width="80" property="primaryCategory" label="主类目"></el-table-column>
-        <el-table-column width="80" property="subCategory" label="子类目"></el-table-column>
-        <el-table-column width="200" property="keyword" label="关键词"></el-table-column>
+        <el-table-column
+          width="80"
+          property="primaryCategory"
+          label="主类目"
+        ></el-table-column>
+        <el-table-column
+          width="80"
+          property="subCategory"
+          label="子类目"
+        ></el-table-column>
+        <el-table-column
+          width="200"
+          property="keyword"
+          label="关键词"
+        ></el-table-column>
       </el-table>
       <template #reference>
-        <el-button class="popover-button" @click="copyData(image.description)" slot="reference">关键词</el-button>
+        <el-button
+          class="popover-button"
+          v-clipboard="decodeURI(image.description)"
+          v-clipboard:success="copySuccess"
+          v-clipboard:error="copyError"
+          slot="reference"
+          >关键词</el-button
+        >
       </template>
     </el-popover>
-    <el-popover style="padding-top:6px;" placement="top" title="" :width="300" trigger="hover">
-      <div style="max-height:300px;overflow:auto;">
+    <el-popover
+      style="padding-top: 6px"
+      placement="top"
+      trigger="hover"
+      :width="300"
+      :show-after="150"
+    >
+      <div style="max-height: 300px; overflow: auto">
         {{ image.uc }}
       </div>
       <template #reference>
-        <el-button class="popover-button" @click="copyData(image.uc)" slot="reference">过滤词</el-button>
+        <el-button
+          class="popover-button"
+          v-clipboard="decodeURI(image.uc)"
+          v-clipboard:success="copySuccess"
+          v-clipboard:error="copyError"
+          slot="reference"
+          >过滤词</el-button
+        >
       </template>
     </el-popover>
-    <el-popover style="padding-top:6px" placement="top" title="" width="300" trigger="hover">
+    <el-popover
+      style="padding-top: 6px"
+      placement="top"
+      trigger="hover"
+      width="300"
+      :show-after="150"
+    >
       <el-table max-height="350" :data="getMetadata()">
-        <el-table-column width="150" property="key" label="类型"></el-table-column>
-        <el-table-column width="150" property="value" label="数据"></el-table-column>
+        <el-table-column
+          width="150"
+          property="key"
+          label="类型"
+        ></el-table-column>
+        <el-table-column
+          width="150"
+          property="value"
+          label="数据"
+        ></el-table-column>
       </el-table>
       <template #reference>
         <el-button class="popover-button" slot="reference">图片数据</el-button>
@@ -41,20 +107,17 @@
 export default {
   props: ["image", "userSettings", "tagsData"],
   methods: {
-    copyData(text) {
-      this.$copyText(decodeURI(text))
-        .then((e) => {
-          this.$message({
-            message: "复制成功",
-            type: "success",
-          });
-        })
-        .catch((e) => {
-          this.$message({
-            message: "复制失败",
-            type: "warning",
-          });
-        });
+    copySuccess() {
+      this.$message({
+        message: "复制成功",
+        type: "success",
+      });
+    },
+    copyError() {
+      this.$message({
+        message: "复制失败",
+        type: "warning",
+      });
     },
     formatKeyword(keyword) {
       keyword = keyword.trim().toLowerCase();

@@ -1,10 +1,29 @@
 <template>
   <el-row id="input-row" maxlength="225" class="demo-autocomplete">
     <el-col id="input-col" :span="24">
-      <el-autocomplete class="inline-input" v-model="state" :fetch-suggestions="querySearch" placeholder="请输入关键词"
-        :trigger-on-focus="false" @select="handleSelect" :maxlength="maxlength" show-word-limit></el-autocomplete>
-      <el-button id="check-button" type="primary" icon="Search" @click="searchImage">搜索</el-button>
-      <el-button @click="filterSettings.isShow = true" id="filter-button" icon="Filter">Tag筛选</el-button>
+      <el-autocomplete
+        class="inline-input"
+        v-model="state"
+        :fetch-suggestions="querySearch"
+        placeholder="请输入关键词"
+        :trigger-on-focus="false"
+        @select="handleSelect"
+        :maxlength="maxlength"
+        show-word-limit
+      ></el-autocomplete>
+      <el-button
+        id="check-button"
+        type="primary"
+        icon="Search"
+        @click="searchImage"
+        >搜索</el-button
+      >
+      <el-button
+        @click="filterSettings.isShow = true"
+        id="filter-button"
+        icon="Filter"
+        >Tag筛选</el-button
+      >
     </el-col>
   </el-row>
 </template>
@@ -57,7 +76,6 @@ export default {
 <style>
 #input-row {
   position: fixed;
-  z-index: 999;
   text-align: center;
   background-color: white;
   border-bottom: 1px solid gainsboro;

@@ -13,6 +13,7 @@ function createWindow() {
 
   // 隐藏菜单栏
   Menu.setApplicationMenu(null);
+
   if (!app.isPackaged) {
     mainWindow.webContents.openDevTools({ mode: "detach" });
   }

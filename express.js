@@ -14,6 +14,8 @@ function createExpress(env) {
   initAPI(app, env);
 
   app.listen(port);
+
+  return app;
 }
 
 module.exports = createExpress;

@@ -1,5 +1,1 @@
-{
-  "imagesLimitCount": 200,
-  "rowLimitCount": 3,
-  "classifyPrompt": true
-}
+{"imagesLimitCount":200,"rowLimitCount":3,"classifyPrompt":false}
