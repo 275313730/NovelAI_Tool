@@ -5,11 +5,11 @@ const createExpress = require("./express");
 const env = preHandle.handleEnv(app);
 
 function createWindow() {
-  const appConfig = preHandle.handleAppConfig(env);
+  const appConfig = preHandle.handleAppSettings(env);
 
   const mainWindow = new BrowserWindow(appConfig);
 
-  env.mainWindow = mainWindow;
+  env.window = mainWindow;
 
   // 隐藏菜单栏
   Menu.setApplicationMenu(null);
@@ -30,7 +30,7 @@ app.whenReady().then(() => {
       app.exit(0);
     } else {
       createExpress(env);
-      mainWindow.loadURL(env.APP_URL);
+      mainWindow.loadURL(env.infos.APP_URL);
     }
   });
 });

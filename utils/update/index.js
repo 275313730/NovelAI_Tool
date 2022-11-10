@@ -5,33 +5,31 @@ const request = require("request");
 const StreamZip = require("node-stream-zip");
 
 async function checkUpdate(env, callback) {
-  await env.mainWindow.loadFile(path.resolve(env.APP_PATH, "./utils/update/index.html"));
+  await env.window.loadFile(path.resolve(env.paths.APP_PATH, "./utils/update/index.html"));
 
-  const TOOLINFO_PATH = path.resolve(env.APP_PATH, "./config/tool.update.json");
-
-  let toolInfo = JSON.parse(fs.readFileSync(TOOLINFO_PATH));
+  let appConfig = JSON.parse(fs.readFileSync(env.paths.APP_CONFIG_PATH));
 
   let updateInfo = {
     status: 200,
     needUpdate: false,
     chooseUpdate: false,
-    currentVersion: toolInfo.version,
-    newVersion: toolInfo.version,
+    currentVersion: appConfig.version,
+    newVersion: appConfig.version,
     downloadUrl: "",
   };
 
   let currentTime = Date.now();
-  if (toolInfo.lastCheckTime > 0) {
-    let lastCheckDate = new Date(toolInfo.lastCheckTime);
+  if (appConfig.lastCheckTime > 0) {
+    let lastCheckDate = new Date(appConfig.lastCheckTime);
     let newCheckTime = lastCheckDate.setDate(lastCheckDate.getDate() + 1);
     if (currentTime < newCheckTime) {
       return callback(false);
     }
   }
 
-  toolInfo.lastCheckTime = currentTime;
+  appConfig.lastCheckTime = currentTime;
 
-  const { githubSource, giteeSource } = toolInfo.source;
+  const { githubSource, giteeSource } = appConfig.source;
 
   request(githubSource.url, githubSource.options, (err, res, body) => {
     if (err) throw err;
@@ -45,12 +43,12 @@ async function checkUpdate(env, callback) {
         updateInfo.newVersion = data.tag_name;
         updateInfo.downloadUrl = `${giteeSource.url}${updateInfo.newVersion}/${updateInfo.newVersion}.zip`;
 
-        const currentVersion = Number(toolInfo.version.replace("v", "").replace(/\./g, ""));
+        const currentVersion = Number(appConfig.version.replace("v", "").replace(/\./g, ""));
         const newVersion = Number(data.tag_name.replace("v", "").replace(/\./g, ""));
 
         if (newVersion > currentVersion) {
           updateInfo.needUpdate = true;
-          const updateDialog = dialog.showMessageBoxSync(env.mainWindow, {
+          const updateDialog = dialog.showMessageBoxSync(env.window, {
             message: `检查到新版本${updateInfo.newVersion}发布，是否更新(取消后今日不会再出现)`,
             buttons: ["取消", "更新"],
             defaultId: 1,
@@ -60,7 +58,7 @@ async function checkUpdate(env, callback) {
       }
 
       if (updateInfo.status == 403) {
-        dialog.showMessageBoxSync(env.mainWindow, {
+        dialog.showMessageBoxSync(env.window, {
           message: "无法获取更新数据",
         });
       }
@@ -70,7 +68,7 @@ async function checkUpdate(env, callback) {
         });
       } else {
         if (env.isPackaged) {
-          fs.writeFileSync(TOOLINFO_PATH, JSON.stringify(toolInfo));
+          fs.writeFileSync(env.paths.APP_CONFIG_PATH, JSON.stringify(appConfig));
         }
         callback(false);
       }
@@ -79,16 +77,16 @@ async function checkUpdate(env, callback) {
 }
 
 function updateVersion(env, updateInfo, callback) {
-  const RESOURCES_PATH = path.resolve(env.ROOT_PATH, "./resources");
-  const RESOURCES_OLD_PATH = path.resolve(env.ROOT_PATH, "./resourcesOld");
-  const ZIP_PATH = path.resolve(env.ROOT_PATH, `./${updateInfo.newVersion}.zip`);
+  const RESOURCES_PATH = path.resolve(env.paths.ROOT_PATH, "./resources");
+  const RESOURCES_OLD_PATH = path.resolve(env.paths.ROOT_PATH, "./resourcesOld");
+  const ZIP_PATH = path.resolve(env.paths.ROOT_PATH, `./${updateInfo.newVersion}.zip`);
 
   let stream = fs.createWriteStream(ZIP_PATH);
-  env.mainWindow.webContents.send("update-content", 1);
+  env.window.webContents.send("update-content", 1);
   request(updateInfo.downloadUrl)
     .pipe(stream)
     .on("close", (err) => {
-      env.mainWindow.webContents.send("update-content", 2);
+      env.window.webContents.send("update-content", 2);
       let isUnziped = false;
       let checkUnzip = setInterval(() => {
         if (!isUnziped) return;
@@ -97,8 +95,8 @@ function updateVersion(env, updateInfo, callback) {
         callback(true);
       }, 1000);
       fs.renameSync(RESOURCES_PATH, RESOURCES_OLD_PATH);
-      unzipFile(ZIP_PATH, env.ROOT_PATH, (status) => {
-        env.mainWindow.webContents.send("update-content", 3);
+      unzipFile(ZIP_PATH, env.paths.ROOT_PATH, (status) => {
+        env.window.webContents.send("update-content", 3);
         if (status) {
           isUnziped = true;
         } else {

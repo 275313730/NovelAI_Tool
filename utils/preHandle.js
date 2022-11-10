@@ -5,34 +5,42 @@ function handleEnv(app) {
   const APP_PATH = app.getAppPath();
   const STATIC_PATH = path.resolve(APP_PATH, "./dist");
   const ROOT_PATH = app.isPackaged ? path.resolve(APP_PATH, "../../") : APP_PATH;
+  const APP_CONFIG_PATH = path.resolve(APP_PATH, "./app.config.json");
+  const IMAGES_PATH = path.resolve(ROOT_PATH, "./images");
 
   return {
-    isPackaged: app.isPackaged,
-    ROOT_PATH,
-    APP_PATH,
-    STATIC_PATH,
-    platform: process.platform,
-    mainWindow: null,
+    paths: {
+      ROOT_PATH,
+      APP_PATH,
+      STATIC_PATH,
+      APP_CONFIG_PATH,
+      IMAGES_PATH,
+    },
+    infos: {
+      isPackaged: app.isPackaged,
+      platform: process.platform,
+      APP_URL: "http://localhost:3000",
+    },
+    window: null,
     app,
-    APP_URL: "http://localhost:3000",
   };
 }
 
-function handleAppConfig(env) {
-  const APPCONFIG_PATH = path.resolve(env.APP_PATH, "./config/app.config.json");
-  let appConfig = JSON.parse(fs.readFileSync(APPCONFIG_PATH));
+function handleAppSettings(env) {
+  const appConfig = JSON.parse(fs.readFileSync(env.paths.APP_CONFIG_PATH));
+  const { appSettings } = appConfig;
 
-  if (appConfig.webPreferences.preload) {
-    appConfig.webPreferences.preload = path.resolve(env.APP_PATH, appConfig.webPreferences.preload);
+  if (appSettings.webPreferences.preload) {
+    appSettings.webPreferences.preload = path.resolve(env.paths.APP_PATH, appSettings.webPreferences.preload);
   }
-  return appConfig;
+  return appSettings;
 }
 
 function handleServer(env, callback) {
-  const checkUpdate = require("./update/update");
+  const checkUpdate = require("./update/index");
   checkUpdate(env, (updateStatus) => {
     callback(updateStatus);
   });
 }
 
-module.exports = { handleAppConfig, handleEnv, handleServer };
+module.exports = { handleAppSettings, handleEnv, handleServer };

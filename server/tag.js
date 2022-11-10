@@ -4,7 +4,7 @@ const path = require("path");
 
 function loadTags(env) {
   // excel文件类径
-  const excelFilePath = path.resolve(env.APP_PATH, "./data/tags.xlsx");
+  const excelFilePath = path.resolve(env.paths.APP_PATH, "./data/tags.xlsx");
 
   //解析excel, 获取到所有sheets
   const sheets = xlsx.parse(excelFilePath);
@@ -31,7 +31,7 @@ function loadTags(env) {
 
 function loadTagsInclude(env) {
   // excel文件类径
-  const excelFilePath = path.resolve(env.APP_PATH, "./data/tagsInclude.xlsx");
+  const excelFilePath = path.resolve(env.paths.APP_PATH, "./data/tagsInclude.xlsx");
 
   //解析excel, 获取到所有sheets
   const sheets = xlsx.parse(excelFilePath);

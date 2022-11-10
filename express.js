@@ -7,9 +7,9 @@ function createExpress(env) {
   const app = express();
   const port = 3000;
 
-  app.use(express.static(env.STATIC_PATH));
+  app.use(express.static(env.paths.STATIC_PATH));
 
-  app.use(express.static(path.resolve(env.ROOT_PATH, "./images")));
+  app.use(express.static(path.resolve(env.paths.ROOT_PATH, "./images")));
 
   initAPI(app, env);
 
