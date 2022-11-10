@@ -63,7 +63,7 @@ export default {
   mounted() {
     this.$axios({
       method: "get",
-      url: "/configData",
+      url: "/userSettings",
     }).then((res) => {
       for (let key in res.data) {
         this.userSettings[key] = res.data[key];
@@ -74,7 +74,7 @@ export default {
     confirmSettings() {
       this.$axios({
         method: "post",
-        url: "/configData",
+        url: "/userSettings",
         data: this.userSettings,
       }).then((res) => {
         this.$emit("getImagesData");

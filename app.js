@@ -5,9 +5,9 @@ const createExpress = require("./express");
 const env = preHandle.handleEnv(app);
 
 function createWindow() {
-  const appConfig = preHandle.handleAppSettings(env);
+  const appSettings = preHandle.handleAppSettings(env);
 
-  const mainWindow = new BrowserWindow(appConfig);
+  const mainWindow = new BrowserWindow(appSettings);
 
   env.window = mainWindow;
 

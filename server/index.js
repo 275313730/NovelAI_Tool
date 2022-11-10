@@ -2,7 +2,7 @@ const bodyParser = require("body-parser");
 const jsonParser = bodyParser.json();
 
 const { checkImageDirs, getImagesData } = require("./image");
-const { getToolConfig, modifyToolConfig } = require("./toolConfig");
+const { getUserSettings, modifyUserSettings } = require("./userSettings");
 const { loadTags, loadTagsInclude } = require("./tag");
 
 function initAPI(app, env) {
@@ -18,12 +18,12 @@ function initAPI(app, env) {
     res.send(getImagesData(env, req.body));
   });
 
-  app.get("/configData", (req, res) => {
-    res.send(getToolConfig(env));
+  app.get("/userSettings", (req, res) => {
+    res.send(getUserSettings(env));
   });
 
-  app.post("/configData", jsonParser, (req, res) => {
-    res.send(modifyToolConfig(env, req.body));
+  app.post("/userSettings", jsonParser, (req, res) => {
+    res.send(modifyUserSettings(env, req.body));
   });
 
   app.get("/tags", (req, res) => {
