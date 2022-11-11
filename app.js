@@ -29,8 +29,8 @@ app.whenReady().then(() => {
       app.relaunch();
       app.exit(0);
     } else {
-      createExpress(env);
-      mainWindow.loadURL(env.infos.APP_URL);
+      const url = createExpress(env);
+      mainWindow.loadURL(url);
     }
   });
 });

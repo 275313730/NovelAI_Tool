@@ -19,7 +19,6 @@ function handleEnv(app) {
     infos: {
       isPackaged: app.isPackaged,
       platform: process.platform,
-      APP_URL: "http://localhost:3000",
     },
     window: null,
     app,

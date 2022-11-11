@@ -1,6 +1,5 @@
 const express = require("express");
 const path = require("path");
-
 const initAPI = require("./server/index");
 
 function createExpress(env) {
@@ -15,7 +14,9 @@ function createExpress(env) {
 
   app.listen(port);
 
-  return app;
+  const url = `http://localhost:${port}`;
+
+  return url;
 }
 
 module.exports = createExpress;
