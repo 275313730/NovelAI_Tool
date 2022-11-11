@@ -45,11 +45,11 @@
 </template>
 
 <script>
-import Settings from "../components/Settings.vue";
-import ImagePreview from "../components/ImagePreview.vue";
-import PopOver from "../components/PopOver.vue";
-import SearchInput from "../components/SearchInput.vue";
-import TagFilter from "../components/TagFilter.vue";
+import Settings from "../../components/gallery/Settings.vue";
+import ImagePreview from "../../components/gallery/ImagePreview.vue";
+import PopOver from "../../components/gallery/PopOver.vue";
+import SearchInput from "../../components/gallery/SearchInput.vue";
+import TagFilter from "../../components/gallery/TagFilter.vue";
 import { ElLoading } from "element-plus";
 
 export default {

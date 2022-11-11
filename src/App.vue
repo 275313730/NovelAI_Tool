@@ -1,24 +1,37 @@
 <template>
   <div id="app">
+    <Background :tagsData="tagsData" />
     <Home :view="view" v-if="view.currentView == 'home'" />
-    <Gallery v-if="view.currentView == 'gallery'" />
+    <Analysis v-if="view.currentView == 'analysis'" :tagsData="tagsData" />
+    <Gallery v-if="view.currentView == 'gallery'" :tagsData="tagsData" />
   </div>
 </template>
 
 <script>
 import Gallery from "./views/Gallery.vue";
 import Home from "./views/Home.vue";
+import Analysis from "./views/Analysis.vue";
+import Background from "./components/Background.vue";
 
 export default {
   name: "App",
   components: {
     Gallery,
     Home,
+    Analysis,
+    Background,
   },
   data() {
     return {
       view: {
-        currentView: "gallery",
+        currentView: "analysis",
+      },
+      tagsData: {
+        allTags: [],
+        allTagsIndex: [],
+        tagCategories: [],
+        tagsInclude: [],
+        tagsIncludeIndex: [],
       },
     };
   },

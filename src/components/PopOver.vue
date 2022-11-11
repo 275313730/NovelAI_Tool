@@ -104,6 +104,8 @@
 </template>
 
 <script>
+import classifyPrompt from "../utils/classifyPrompt";
+
 export default {
   props: ["image", "userSettings", "tagsData"],
   methods: {
@@ -128,44 +130,7 @@ export default {
       return keyword;
     },
     getClassifyPrompt() {
-      const { description } = this.image;
-      if (!description) return [];
-      const keywords = description.split(",");
-
-      const { tagsInclude, allTags } = this.tagsData;
-      let prompt = [];
-      let keywordsArray = [];
-
-      for (let keyword of keywords) {
-        keyword = this.formatKeyword(keyword);
-        if (keyword == "") continue;
-        if (keywordsArray.includes(keyword)) continue;
-
-        keywordsArray.push(keyword);
-
-        let fuzzyMatching = false;
-        let tagIndex = this.exactMatch(keyword);
-        if (tagIndex == -1) {
-          fuzzyMatching = true;
-          tagIndex = this.fuzzyMatch(keyword);
-        }
-
-        if (tagIndex > -1) {
-          const tag = fuzzyMatching ? tagsInclude[tagIndex] : allTags[tagIndex];
-          prompt.push({
-            primaryCategory: tag.primaryCategory,
-            subCategory: tag.subCategory,
-            keyword,
-          });
-        } else {
-          prompt.push({
-            primaryCategory: "-",
-            subCategory: "-",
-            keyword,
-          });
-        }
-      }
-      return prompt;
+      return classifyPrompt(this.image.description, this.tagsData);
     },
     exactMatch(keyword) {
       const { allTagsIndex } = this.tagsData;

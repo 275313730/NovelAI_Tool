@@ -6,16 +6,9 @@
 export default {
   props: ["tagsData"],
   mounted() {
-    this.checkImageDirs();
-    this.getTagsData()
+    this.getTagsData();
   },
   methods: {
-    checkImageDirs() {
-      this.$axios.get("/checkImageDirs").then((res) => {
-        const { imageDirs } = res.data;
-        this.$emit("showImageDirs", imageDirs);
-      });
-    },
     getTagsData() {
       this.$axios.get("/tags").then((res) => {
         this.tagsData.allTags = res.data;
@@ -59,5 +52,4 @@ export default {
 </script>
 
 <style>
-
 </style>
