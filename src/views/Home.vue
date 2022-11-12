@@ -14,7 +14,7 @@
             class="home-card"
             shadow="hover"
           >
-            本地图库
+            图库
           </el-card>
         </el-col>
         <el-col :span="4"></el-col>

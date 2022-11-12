@@ -104,7 +104,24 @@ function readFileInfo(file, fileBuffer) {
 }
 
 function readTextChunks(fileBuffer) {
-  let chunks = extractChunks(new Uint8Array(fileBuffer));
+  let chunks = [];
+  try {
+    chunks = extractChunks(new Uint8Array(fileBuffer));
+  } catch (error) {
+    if (error) {
+      return [
+        {
+          keyword: "description",
+          text: "",
+        },
+        { keyword: "uc", text: "" },
+        {
+          keyword: "tips",
+          text: "文件可能损坏",
+        },
+      ];
+    }
+  }
 
   let textChunks = chunks
     .filter(function (chunk) {
@@ -198,8 +215,8 @@ function handleDreamTag(data) {
 }
 
 function handleWebUiTag(data) {
-  let keywords,
-    negativeKeywords,
+  let keywords = "",
+    negativeKeywords = "",
     commentString = "";
   if (data.keyword == "parameters") data.text = "parameters" + data.text;
   if (data.text.includes("parameters")) {

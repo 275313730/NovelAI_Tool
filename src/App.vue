@@ -21,10 +21,15 @@ export default {
     Analysis,
     Background,
   },
+  mounted() {
+    this.$axios.get("/downloadOnedriveData").then((res) => {
+      console.log(res);
+    });
+  },
   data() {
     return {
       view: {
-        currentView: "analysis",
+        currentView: "gallery",
       },
       tagsData: {
         allTags: [],

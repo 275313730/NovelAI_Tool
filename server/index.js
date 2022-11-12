@@ -4,6 +4,7 @@ const jsonParser = bodyParser.json();
 const { checkImageDirs, getImagesData } = require("./image");
 const { getUserSettings, modifyUserSettings } = require("./userSettings");
 const { loadTags, loadTagsInclude } = require("./tag");
+const { downloadOnedriveData } = require("./onedrive");
 
 function initAPI(app, env) {
   app.get("/", (req, res) => {
@@ -32,6 +33,12 @@ function initAPI(app, env) {
 
   app.get("/tagsInclude", (req, res) => {
     res.send(loadTagsInclude(env));
+  });
+
+  app.get("/downloadOnedriveData", (req, res) => {
+    downloadOnedriveData(env, (status) => {
+      res.send(status);
+    });
   });
 }
 
