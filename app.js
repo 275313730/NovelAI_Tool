@@ -1,6 +1,7 @@
 const { app, BrowserWindow, Menu } = require("electron");
 const preHandle = require("./utils/preHandle");
 const createExpress = require("./express");
+require("./utils/errorCatch");
 
 const env = preHandle.handleEnv(app);
 

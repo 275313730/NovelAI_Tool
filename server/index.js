@@ -4,7 +4,7 @@ const jsonParser = bodyParser.json();
 const { checkImageDirs, getImagesData } = require("./image");
 const { getUserSettings, modifyUserSettings } = require("./userSettings");
 const { loadTags, loadTagsInclude } = require("./tag");
-const { downloadOnedriveData } = require("./onedrive");
+const { downloadOnedriveData, getDownloadProgress } = require("./onedrive");
 
 function initAPI(app, env) {
   app.get("/", (req, res) => {
@@ -39,6 +39,10 @@ function initAPI(app, env) {
     downloadOnedriveData(env, (status) => {
       res.send(status);
     });
+  });
+
+  app.get("/downloadProgress", (req, res) => {
+    res.send(getDownloadProgress());
   });
 }
 

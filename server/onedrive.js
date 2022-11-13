@@ -5,80 +5,95 @@ const path = require("path");
 const fileListApi = "https://www.roanne.fun/fileList";
 const fileListVersionApi = "https://www.roanne.fun/fileListVersion";
 
-function getFileList(callback) {
-  request(fileListApi, (err, res, body) => {
-    if (err) {
-      return callback(false);
-    }
-    callback(body);
+let maxDownloadThreads = 10;
+let currentDownloadThreads = 1;
+let currentCount = -1;
+let fileListCount = 0;
+
+function downloadOnedriveData(env, callback) {
+  getFileList(env, (data) => {
+    fileListCount = data.length;
+    tryDownloadImage(env, data, () => {
+      currentCount = -1;
+      callback(true);
+    });
   });
 }
 
-function getFileListVersion(env, callback) {
+function getFileList(env, callback) {
+  const fileListPath = path.resolve(env.paths.DATA_PATH, "./fileList.json");
   const APP_CONFIG_PATH = env.paths.APP_CONFIG_PATH;
   let appConfig = JSON.parse(fs.readFileSync(APP_CONFIG_PATH));
 
   request(fileListVersionApi, (err, res, body) => {
+    if (err) throw err;
     const version = JSON.parse(body).version;
-    callback(appConfig.fileListVersion != version, version);
+    if (env.version != Number(version)) {
+      request(fileListApi, (err, res, body) => {
+        if (err) {
+          return callback(false);
+        }
+        if (appConfig.isPackaged) {
+          let appConfig = JSON.parse(fs.readFileSync(APP_CONFIG_PATH));
+          appConfig.fileListVersion = version;
+          fs.writeFileSync(APP_CONFIG_PATH, JSON.stringify(appConfig));
+        }
+        fs.writeFileSync(fileListPath, body);
+        callback(JSON.parse(body));
+      });
+    } else {
+      const data = fs.readFileSync(fileListPath);
+      callback(JSON.parse(data));
+    }
   });
 }
 
-function downloadOnedriveData(env, callback) {
-  const fileListPath = path.resolve(env.paths.DATA_PATH, "./fileList.json");
-  const APP_CONFIG_PATH = env.paths.APP_CONFIG_PATH;
-
-  // getFileListVersion(env, (version) => {
-  //   if (env.version != Number(version)) {
-  //     getFileList((data) => {
-  //       if (appConfig.isPackaged) {
-  //         let appConfig = JSON.parse(fs.readFileSync(APP_CONFIG_PATH));
-  //         appConfig.fileListVersion = version;
-  //         fs.writeFileSync(APP_CONFIG_PATH, JSON.stringify(appConfig));
-  //       }
-  //       fs.writeFileSync(fileListPath, data);
-  //       downloadImage(env, JSON.parse(data), 0, () => {
-  //         callback(true);
-  //       });
-  //     });
-  //   } else {
-  const data = fs.readFileSync(fileListPath);
-  downloadImage(env, JSON.parse(data), 0, () => {
-    callback(true);
-  });
-  //   }
-  // });
+function tryDownloadImage(env, data, callback) {
+  // console.log(`下载总数:${currentCount},当前线程数:${currentDownloadThreads}`);
+  if (currentCount < data.length - 1) {
+    currentCount += 1;
+    setImmediate(() => {
+      downloadImage(env, data, callback);
+    });
+    if (currentDownloadThreads < maxDownloadThreads) {
+      currentDownloadThreads += 1;
+      tryDownloadImage(env, data, callback);
+    }
+  } else {
+    if (currentDownloadThreads > 1) {
+      currentDownloadThreads -= 1;
+    } else {
+      callback(true);
+    }
+  }
 }
-
-let maxDownloadCount = 5;
-let currentDownloadCount = 0;
-let currentCount = -1;
 
 function downloadImage(env, data, callback) {
   const imageDir = path.resolve(env.paths.IMAGES_PATH, "./t4网盘");
   if (!fs.existsSync(imageDir)) {
     fs.mkdirSync(imageDir);
   }
-  if (currentCount >= data.length - 1) return callback(true);
-  currentCount += 1;
-  console.log(currentCount);
 
   let imageData = data[currentCount];
   const imagePath = path.resolve(imageDir, `./${imageData.name}`);
+
   if (fs.existsSync(imagePath)) {
-    downloadImage(env, data, callback);
+    tryDownloadImage(env, data, callback);
   } else {
     request(imageData.rawUrl)
       .pipe(fs.createWriteStream(imagePath))
       .on("close", function (err) {
-        if (err) throw err;
-        downloadImage(env, data, callback);
+        tryDownloadImage(env, data, callback);
       });
-    if (currentDownloadCount < maxDownloadCount) {
-      currentDownloadCount += 1;
-      downloadImage(env, data, callback);
-    }
   }
 }
 
-module.exports = { downloadOnedriveData };
+function getDownloadProgress() {
+  if (fileListCount == 0 || currentCount == -1) {
+    return { progress: 0 };
+  } else {
+    return { progress: currentCount / fileListCount };
+  }
+}
+
+module.exports = { downloadOnedriveData, getDownloadProgress };
