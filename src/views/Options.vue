@@ -27,6 +27,8 @@
 </template>
 
 <script>
+import { ElMessageBox } from "element-plus";
+
 export default {
   props: ["view"],
   data() {
@@ -74,7 +76,15 @@ export default {
       if (this.checking) return;
       this.checking = true;
       this.$axios.get("/checkUpdate").then((res) => {
-        console.log(res.data);
+        if (res.data) {
+          ElMessageBox.confirm("更新完成,是否立即重启?", "info", {
+            confirmButtonText: "立即重启",
+            cancelButtonText: "稍后重启",
+            type: "info",
+          }).then(() => {
+            this.$axios.get("/relaunch");
+          });
+        }
       });
     },
   },
