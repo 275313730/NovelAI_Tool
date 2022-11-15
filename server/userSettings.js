@@ -7,7 +7,7 @@ function getUserSettings(env) {
 }
 
 function modifyUserSettings(env, userSettings) {
-  if (env.info.isPackaged) {
+  if (env.infos.isPackaged) {
     const appConfig = JSON.parse(fs.readFileSync(env.paths.APP_CONFIG_PATH));
     for (let key in userSettings) {
       appConfig.userSettings[key] = userSettings[key];

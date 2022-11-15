@@ -25,15 +25,8 @@ function createWindow() {
 app.whenReady().then(() => {
   const mainWindow = createWindow();
 
-  preHandle.handleServer(env, (isUpdated) => {
-    if (isUpdated) {
-      app.relaunch();
-      app.exit(0);
-    } else {
-      const url = createExpress(env);
-      mainWindow.loadURL(url);
-    }
-  });
+  const url = createExpress(env);
+  mainWindow.loadURL(url);
 });
 
 app.on("window-all-closed", (evt) => {

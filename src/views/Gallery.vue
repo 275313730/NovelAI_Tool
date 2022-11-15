@@ -6,40 +6,40 @@
       :loadSettings="loadSettings"
       @getImagesData="getImagesData"
     />
-  </div>
-  <div v-if="imagesCache.length > 0">
-    <tag-filter
-      :filterSettings="filterSettings"
-      :tagsData="tagsData"
-      :allKeywordsArray="allKeywordsArray"
-    />
-    <search-input
-      @searchImage="searchImage"
-      :allKeywordsArray="allKeywordsArray"
-      :filterSettings="filterSettings"
-    />
-    <div id="images-wrapper" class="demo-image__preview">
-      <el-row class="infinite-list" style="overflow: auto" :gutter="12">
-        <el-col
-          :span="24 / userSettings.rowLimitCount"
-          v-for="i in imagesCount"
-          :key="currentImages[i - 1].imageUrl"
-        >
-          <el-card>
-            <image-preview
-              @loadingError="loadingError"
-              :imagesUrlArray="imagesUrlArray"
-              :image="currentImages[i - 1]"
-              :index="i - 1"
-            />
-            <pop-over
-              :image="currentImages[i - 1]"
-              :userSettings="userSettings"
-              :tagsData="tagsData"
-            />
-          </el-card>
-        </el-col>
-      </el-row>
+    <div id="gallery" v-if="imagesCache.length > 0">
+      <tag-filter
+        :filterSettings="filterSettings"
+        :tagsData="tagsData"
+        :allKeywordsArray="allKeywordsArray"
+      />
+      <search-input
+        @searchImage="searchImage"
+        :allKeywordsArray="allKeywordsArray"
+        :filterSettings="filterSettings"
+      />
+      <div id="images-wrapper" class="demo-image__preview">
+        <el-row class="infinite-list" style="overflow: auto">
+          <el-col
+            :span="24 / userSettings.rowLimitCount"
+            v-for="i in imagesCount"
+            :key="currentImages[i - 1].imageUrl"
+          >
+            <el-card>
+              <image-preview
+                @loadingError="loadingError"
+                :imagesUrlArray="imagesUrlArray"
+                :image="currentImages[i - 1]"
+                :index="i - 1"
+              />
+              <pop-over
+                :image="currentImages[i - 1]"
+                :userSettings="userSettings"
+                :tagsData="tagsData"
+              />
+            </el-card>
+          </el-col>
+        </el-row>
+      </div>
     </div>
   </div>
 </template>
@@ -53,7 +53,6 @@ import TagFilter from "../components/TagFilter.vue";
 import { ElLoading } from "element-plus";
 
 export default {
-  name: "App",
   components: {
     Settings,
     ImagePreview,
@@ -132,17 +131,19 @@ export default {
       }
     },
     getImagesMaxCount() {
-      return Math.min(
+      /*       return Math.min(
         this.userSettings.imagesLimitCount,
         this.currentImages.length
-      );
+      ); */
+      return this.currentImages.length;
     },
     initImages() {
-      let sliceNum = Math.min(
+      /*       let sliceNum = Math.min(
         this.userSettings.imagesLimitCount,
         this.imagesCache.length
       );
-      this.currentImages = this.imagesCache.slice(0, sliceNum);
+      this.currentImages = this.imagesCache.slice(0, sliceNum); */
+      this.currentImages = this.imagesCache;
       if (this.imagesCount < this.userSettings.rowLimitCount * 3) {
         this.scrollLoad();
       }
@@ -208,25 +209,28 @@ export default {
       }
     },
     searchImage(keywordsArray) {
-      if (keywordsArray[0] == "") {
-        return (this.currentImages = this.imagesCache);
-      }
       let matchImages = [];
-      for (let imageData of this.imagesCache) {
-        let match = false;
-        let description = imageData.description;
-        if (description && description !== "") {
-          for (let targetKeyword of keywordsArray) {
-            if (description.includes(targetKeyword.trim())) {
-              match = true;
-              break;
+      if (keywordsArray[0] == "") {
+        matchImages = this.imagesCache;
+      } else {
+        for (let imageData of this.imagesCache) {
+          let match = false;
+          let description = imageData.description;
+          if (description && description !== "") {
+            for (let targetKeyword of keywordsArray) {
+              if (description.includes(targetKeyword.trim())) {
+                match = true;
+                break;
+              }
             }
           }
-        }
 
-        if (match) matchImages.push(imageData);
+          if (match) matchImages.push(imageData);
+        }
       }
+
       this.imagesCount = 0;
+      scrollTo(0, 0);
       this.currentImages = matchImages;
       this.imagesUrlArray = this.getImagesUrlArray();
       this.scrollLoad(true);
@@ -236,28 +240,11 @@ export default {
 </script>
 
 <style>
-body {
-  margin: 0;
-  padding: 0;
-}
-
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  width: 100%;
-  margin: 0;
-  padding: 0;
-  overflow-x: hidden;
-}
-
 #filter-button {
   margin-left: 10px;
 }
 
 #images-wrapper {
-  padding-top: 65px;
+  padding-top: 50px;
 }
 </style>

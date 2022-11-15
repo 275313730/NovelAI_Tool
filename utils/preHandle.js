@@ -37,11 +37,4 @@ function handleAppSettings(env) {
   return appSettings;
 }
 
-function handleServer(env, callback) {
-  const checkUpdate = require("./update/index");
-  checkUpdate(env, (updateStatus) => {
-    callback(updateStatus);
-  });
-}
-
-module.exports = { handleAppSettings, handleEnv, handleServer };
+module.exports = { handleAppSettings, handleEnv };

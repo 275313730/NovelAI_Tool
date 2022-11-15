@@ -5,8 +5,6 @@ const request = require("request");
 const StreamZip = require("node-stream-zip");
 
 async function checkUpdate(env, callback) {
-  await env.window.loadFile(path.resolve(env.paths.APP_PATH, "./utils/update/index.html"));
-
   let appConfig = JSON.parse(fs.readFileSync(env.paths.APP_CONFIG_PATH));
 
   let updateInfo = {
@@ -49,7 +47,7 @@ async function checkUpdate(env, callback) {
         if (newVersion > currentVersion) {
           updateInfo.needUpdate = true;
           const updateDialog = dialog.showMessageBoxSync(env.window, {
-            message: `检查到新版本${updateInfo.newVersion}发布，是否更新(取消后今日不会再出现)`,
+            message: `检查到新版本${updateInfo.newVersion}发布，是否更新`,
             buttons: ["取消", "更新"],
             defaultId: 1,
           });
@@ -62,6 +60,7 @@ async function checkUpdate(env, callback) {
           message: "无法获取更新数据",
         });
       }
+
       if (updateInfo.needUpdate && updateInfo.chooseUpdate) {
         updateVersion(env, updateInfo, (updateStatus) => {
           callback(updateStatus);
@@ -82,11 +81,9 @@ function updateVersion(env, updateInfo, callback) {
   const ZIP_PATH = path.resolve(env.paths.ROOT_PATH, `./${updateInfo.newVersion}.zip`);
 
   let stream = fs.createWriteStream(ZIP_PATH);
-  env.window.webContents.send("update-content", 1);
   request(updateInfo.downloadUrl)
     .pipe(stream)
     .on("close", (err) => {
-      env.window.webContents.send("update-content", 2);
       let isUnziped = false;
       let checkUnzip = setInterval(() => {
         if (!isUnziped) return;
@@ -96,7 +93,6 @@ function updateVersion(env, updateInfo, callback) {
       }, 1000);
       fs.renameSync(RESOURCES_PATH, RESOURCES_OLD_PATH);
       unzipFile(ZIP_PATH, env.paths.ROOT_PATH, (status) => {
-        env.window.webContents.send("update-content", 3);
         if (status) {
           isUnziped = true;
         } else {
@@ -142,4 +138,4 @@ function removeDir(dir) {
   fs.rmdirSync(dir); //如果文件夹是空的，就将自己删除掉
 }
 
-module.exports = checkUpdate;
+module.exports = { checkUpdate };

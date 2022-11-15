@@ -12,6 +12,7 @@ let fileListCount = 0;
 
 function downloadOnedriveData(env, callback) {
   getFileList(env, (data) => {
+    if (data == false) return callback(false);
     fileListCount = data.length;
     tryDownloadImage(env, data, () => {
       currentCount = -1;
@@ -26,13 +27,13 @@ function getFileList(env, callback) {
   let appConfig = JSON.parse(fs.readFileSync(APP_CONFIG_PATH));
 
   request(fileListVersionApi, (err, res, body) => {
-    if (err) throw err;
-    const version = JSON.parse(body).version;
-    if (env.version != Number(version)) {
+    if (err) return callback(false);
+
+    const version = Number(JSON.parse(body).version);
+    if (version !== 0 && env.version != version) {
       request(fileListApi, (err, res, body) => {
-        if (err) {
-          return callback(false);
-        }
+        if (err) return callback(false);
+
         if (appConfig.isPackaged) {
           let appConfig = JSON.parse(fs.readFileSync(APP_CONFIG_PATH));
           appConfig.fileListVersion = version;

@@ -5,6 +5,7 @@ const { checkImageDirs, getImagesData } = require("./image");
 const { getUserSettings, modifyUserSettings } = require("./userSettings");
 const { loadTags, loadTagsInclude } = require("./tag");
 const { downloadOnedriveData, getDownloadProgress } = require("./onedrive");
+const { checkUpdate } = require("./update");
 
 function initAPI(app, env) {
   app.get("/", (req, res) => {
@@ -43,6 +44,17 @@ function initAPI(app, env) {
 
   app.get("/downloadProgress", (req, res) => {
     res.send(getDownloadProgress());
+  });
+
+  app.get("/checkUpdate", (req, res) => {
+    checkUpdate(env, (status) => {
+      res.send(status);
+    });
+  });
+
+  app.get("/relaunch", (req, res) => {
+    env.app.relaunch();
+    env.app.exit(0);
   });
 }
 

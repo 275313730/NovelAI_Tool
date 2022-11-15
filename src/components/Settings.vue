@@ -17,7 +17,7 @@
     </el-tab-pane>
     <el-tab-pane label="配置管理">
       <div class="block">
-        <div>
+        <!--         <div>
           <p class="demonstration">页面显示图片数量(防卡顿)</p>
           <el-radio v-model="userSettings.imagesLimitCount" :label="100"
             >100</el-radio
@@ -35,7 +35,7 @@
             >500</el-radio
           >
         </div>
-        <el-divider></el-divider>
+        <el-divider></el-divider> -->
         <div>
           <p class="demonstration">一行显示图片数量</p>
           <el-radio v-model="userSettings.rowLimitCount" :label="3">3</el-radio>
