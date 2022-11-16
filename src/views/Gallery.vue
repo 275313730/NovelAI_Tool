@@ -93,19 +93,18 @@ export default {
     window.addEventListener("scroll", this.scrollLoad);
   },
   methods: {
-    checkImageDirs() {
-      this.$axios.get("/checkImageDirs").then((res) => {
-        const { imageDirs } = res.data;
-        for (let imageDir of imageDirs) {
-          this.loadSettings.imageDirs.push({
-            dirName: imageDir,
-            selected: true,
-          });
-        }
-        this.loadSettings.loadingDir = true;
-      });
+    async checkImageDirs() {
+      const res = await this.$axios.get("/checkImageDirs");
+      const { imageDirs } = res.data;
+      for (let imageDir of imageDirs) {
+        this.loadSettings.imageDirs.push({
+          dirName: imageDir,
+          selected: true,
+        });
+      }
+      this.loadSettings.loadingDir = true;
     },
-    getImagesData(arrayIndex = 0, realIndex = 0) {
+    async getImagesData(arrayIndex = 0, realIndex = 0) {
       if (arrayIndex > this.loadSettings.imageDirs.length - 1) {
         this.imagesUrlArray = this.getImagesUrlArray();
         this.allKeywordsArray = this.getAllKeywordsArray();
@@ -119,15 +118,14 @@ export default {
         this.getImagesData(arrayIndex + 1, realIndex);
       } else {
         this.loadingInstance.text = `正在加载第${realIndex + 1}个图库`;
-        this.$axios({
+        const res = await this.$axios({
           method: "post",
           url: "/getImagesData",
           data: [imageDir],
-        }).then((res) => {
-          this.imagesCache.push(...res.data);
-          this.initImages();
-          this.getImagesData(arrayIndex + 1, realIndex + 1);
         });
+        this.imagesCache.push(...res.data);
+        this.initImages();
+        this.getImagesData(arrayIndex + 1, realIndex + 1);
       }
     },
     getImagesMaxCount() {

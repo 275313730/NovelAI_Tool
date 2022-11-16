@@ -55,37 +55,68 @@ export default {
     },
   },
   methods: {
-    downloadOnedriveData() {
+    async downloadOnedriveData() {
       if (this.downloading) return;
       this.downloading = true;
-      this.$axios.get("/downloadOnedriveData").then((res) => {
+      const isComplete = await this.$axios.get("/downloadOnedriveData");
+      if (isComplete.data) {
         this.downloadProgress = 1;
-      });
-      let interval = setInterval(() => {
+      }
+
+      // 每秒获取后端下载进度
+      let interval = setInterval(async () => {
         if (this.downloadProgress == 1) return clearInterval(interval);
-        this.$axios.get("/downloadProgress").then((res) => {
-          if (res.data == false) {
-            this.downloadProgress = -1;
-          } else {
-            this.downloadProgress = res.data.progress;
-          }
-        });
+        const res = await this.$axios.get("/downloadProgress");
+        if (res.data == false) {
+          this.downloadProgress = -1;
+        } else {
+          this.downloadProgress = res.data.progress;
+        }
       }, 1000);
     },
-    checkUpdate() {
+    async checkUpdate() {
       if (this.checking) return;
       this.checking = true;
-      this.$axios.get("/checkUpdate").then((res) => {
-        if (res.data) {
-          ElMessageBox.confirm("更新完成,是否立即重启?", "info", {
+      const res = await this.$axios.get("/checkUpdate");
+      switch (res.data.status) {
+        case -1:
+          console.log("检测不到更新数据");
+          break;
+        case 0:
+          console.log("已经是最新版本");
+          break;
+        case 1:
+          const isUpdate = await ElMessageBox.confirm(
+            "检查到新版本,是否更新",
+            "success",
+            {
+              confirmButtonText: "更新",
+              cancelButtonText: "取消",
+              type: "info",
+            }
+          );
+          if (isUpdate) {
+            this.updateTool();
+          }
+          break;
+      }
+    },
+    async updateTool() {
+      const res = await this.$axios.get("/updateTool");
+      if (res.data) {
+        const isRelaunch = await ElMessageBox.confirm(
+          "更新完成,是否立即重启?",
+          "success",
+          {
             confirmButtonText: "立即重启",
             cancelButtonText: "稍后重启",
-            type: "info",
-          }).then(() => {
-            this.$axios.get("/relaunch");
-          });
+            type: "success",
+          }
+        );
+        if (isRelaunch) {
+          this.$axios.get("/relaunch");
         }
-      });
+      }
     },
   },
 };

@@ -30,13 +30,13 @@ function checkImageDirs(env) {
   return response;
 }
 
-function getImagesData(env, loadImageDirs) {
+function getImagesData(env, imageDirs) {
   const { IMAGES_PATH } = env.paths;
   let imagesData = [];
 
   fs.readdirSync(IMAGES_PATH, { withFileTypes: true }).forEach(function (dirent) {
     if (!dirent.isDirectory()) return;
-    for (let imageDir of loadImageDirs) {
+    for (let imageDir of imageDirs) {
       if (!imageDir.selected || imageDir.dirName !== dirent.name) continue;
       let DIR_PATH = path.resolve(IMAGES_PATH, `./${imageDir.dirName}`);
       fs.readdirSync(DIR_PATH).forEach(function (file) {

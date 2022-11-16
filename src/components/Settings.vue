@@ -60,25 +60,25 @@
 <script>
 export default {
   props: ["userSettings", "loadSettings"],
-  mounted() {
-    this.$axios({
+  async mounted() {
+    const res = await this.$axios({
       method: "get",
       url: "/userSettings",
-    }).then((res) => {
-      for (let key in res.data) {
-        this.userSettings[key] = res.data[key];
-      }
     });
+    for (let key in res.data) {
+      this.userSettings[key] = res.data[key];
+    }
   },
   methods: {
-    confirmSettings() {
-      this.$axios({
+    async confirmSettings() {
+      const res = await this.$axios({
         method: "post",
         url: "/userSettings",
         data: this.userSettings,
-      }).then((res) => {
-        this.$emit("getImagesData");
       });
+      if (res.data) {
+        this.$emit("getImagesData");
+      }
     },
   },
 };

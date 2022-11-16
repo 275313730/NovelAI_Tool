@@ -5,7 +5,8 @@ const { checkImageDirs, getImagesData } = require("./image");
 const { getUserSettings, modifyUserSettings } = require("./userSettings");
 const { loadTags, loadTagsInclude } = require("./tag");
 const { downloadOnedriveData, getDownloadProgress } = require("./onedrive");
-const { checkUpdate } = require("./update");
+const { checkUpdate, updateTool } = require("./update");
+const { async } = require("node-stream-zip");
 
 function initAPI(app, env) {
   app.get("/", (req, res) => {
@@ -46,10 +47,14 @@ function initAPI(app, env) {
     res.send(getDownloadProgress());
   });
 
-  app.get("/checkUpdate", (req, res) => {
-    checkUpdate(env, (status) => {
-      res.send(status);
-    });
+  app.get("/checkUpdate", jsonParser, async (req, res) => {
+    const status = await checkUpdate(env, req.body.autoCheck);
+    res.send(status);
+  });
+
+  app.get("/updateTool", async (req, res) => {
+    const status = await updateTool(env);
+    res.send(status);
   });
 
   app.get("/relaunch", (req, res) => {

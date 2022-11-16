@@ -6,20 +6,22 @@
 export default {
   props: ["tagsData"],
   mounted() {
-    this.getTagsData();
+    this.getAllTags();
+    this.getTagsInclude();
   },
   methods: {
-    getTagsData() {
-      this.$axios.get("/tags").then((res) => {
-        this.tagsData.allTags = res.data;
-        this.getAllCategories();
-      });
-      this.$axios.get("/tagsInclude").then((res) => {
-        this.tagsData.tagsInclude = res.data;
-        for (let tag of res.data) {
-          this.tagsData.tagsIncludeIndex.push(tag.tagName);
-        }
-      });
+    async getAllTags() {
+      const tagsRes = await this.$axios.get("/tags");
+      this.tagsData.allTags = tagsRes.data;
+
+      this.getAllCategories();
+    },
+    async getTagsInclude() {
+      const tagsIncludeRes = await this.$axios.get("/tagsInclude");
+      this.tagsData.tagsInclude = tagsIncludeRes.data;
+      for (let tag of tagsIncludeRes.data) {
+        this.tagsData.tagsIncludeIndex.push(tag.tagName);
+      }
     },
     getAllCategories() {
       const { allTags, allTagsIndex, tagCategories } = this.tagsData;

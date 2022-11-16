@@ -31,7 +31,7 @@ function handleAppSettings(env) {
   const appConfig = JSON.parse(fs.readFileSync(env.paths.APP_CONFIG_PATH));
   const { appSettings } = appConfig;
 
-  if (appSettings.webPreferences.preload) {
+  if (appSettings.webPreferences && appSettings.webPreferences.preload) {
     appSettings.webPreferences.preload = path.resolve(env.paths.APP_PATH, appSettings.webPreferences.preload);
   }
   return appSettings;

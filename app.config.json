@@ -1,5 +1,5 @@
 {
-  "version": "v1.4.0",
+  "version": "v1.4.1",
   "lastCheckTime": 0,
   "fileListVersion": 0,
   "source": {
@@ -22,10 +22,7 @@
   },
   "appSettings": {
     "width": 800,
-    "height": 600,
-    "webPreferences": {
-      "preload": "./utils/preload.js"
-    }
+    "height": 600
   },
   "userSettings": {
     "imagesLimitCount": 200,

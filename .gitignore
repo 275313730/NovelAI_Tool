@@ -3,3 +3,5 @@ images
 dist
 .DS_Store
 fileList.json
+resources
+.zip
