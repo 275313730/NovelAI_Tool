@@ -34,12 +34,12 @@ function getImagesData(env, imageDirs) {
   const { IMAGES_PATH } = env.paths;
   let imagesData = [];
 
-  fs.readdirSync(IMAGES_PATH, { withFileTypes: true }).forEach(function (dirent) {
+  fs.readdirSync(IMAGES_PATH, { withFileTypes: true }).forEach((dirent) => {
     if (!dirent.isDirectory()) return;
     for (let imageDir of imageDirs) {
       if (!imageDir.selected || imageDir.dirName !== dirent.name) continue;
       let DIR_PATH = path.resolve(IMAGES_PATH, `./${imageDir.dirName}`);
-      fs.readdirSync(DIR_PATH).forEach(function (file) {
+      fs.readdirSync(DIR_PATH).forEach((file) => {
         if (path.extname(file) !== ".png") return;
         let FILE_PATH = path.resolve(DIR_PATH, `./${file}`);
         let fileStat = {
@@ -62,24 +62,22 @@ function readFileInfo(file, fileBuffer) {
   let fileInfoRef = [];
 
   if (textChunks.length > 0) {
-    let comment = [];
     fileInfoRef = [
       { key: "fileName", value: file.name },
       { key: "fileSize", value: prettyBytes(file.size) },
-      ...textChunks.map((v, k) => {
-        if (v.keyword == "comment") {
-          comment = JSON.parse(v.text);
-          return {};
-        } else {
-          return {
-            key: v.keyword,
-            value: v.text,
-          };
-        }
-      }),
     ];
-    for (let key in comment) {
-      fileInfoRef.push({ key, value: comment[key] });
+    for (let chunk of textChunks) {
+      if (chunk.keyword == "comment") {
+        const comment = JSON.parse(chunk.text);
+        for (let key in comment) {
+          fileInfoRef.push({ key, value: comment[key] });
+        }
+      } else {
+        fileInfoRef.push({
+          key: chunk.keyword,
+          value: chunk.text,
+        });
+      }
     }
   }
 
@@ -124,40 +122,42 @@ function readTextChunks(fileBuffer) {
   }
 
   let textChunks = chunks
-    .filter(function (chunk) {
+    .filter((chunk) => {
       return chunk.name === "tEXt" || chunk.name === "iTXt";
     })
-    .map(function (chunk) {
+    .map((chunk) => {
       if (chunk.name === "iTXt") {
         let data = chunk.data.filter((x) => x != 0x0);
         let txt = new TextDecoder().decode(data);
         if (txt.includes("Description")) {
-          fromNaifu = true;
           return {
             keyword: "description",
             text: txt.split("Description")[1],
           };
+        } else {
+          return {
+            keyword: "info",
+            text: txt,
+          };
         }
-        return {
-          keyword: "info",
-          text: txt,
-        };
       }
       return text.decode(chunk.data);
     });
 
   switch (checkModel(textChunks)) {
     case "webui":
-      textChunks = handleWebUiTag(textChunks[0]);
+      textChunks = handleWebUiData(textChunks[0]);
       break;
     case "dream":
-      textChunks = handleDreamTag(textChunks[1]);
+      // dream生成的数据全部都在textChunks[1]中
+      textChunks = handleDreamData(textChunks[1]);
       break;
     case "naifu":
       textChunks.push({ keyword: "from", text: "naifu" });
       break;
   }
 
+  // 字符串后处理,统一格式
   for (let data of textChunks) {
     data.keyword = data.keyword.toLowerCase();
     if (data.keyword == "description") {
@@ -181,7 +181,7 @@ function checkModel(textChunks) {
   }
 }
 
-function handleDreamTag(data) {
+function handleDreamData(data) {
   let textChunks = [
     { keyword: "uc", text: "" },
     {
@@ -214,7 +214,7 @@ function handleDreamTag(data) {
   return textChunks;
 }
 
-function handleWebUiTag(data) {
+function handleWebUiData(data) {
   let keywords = "",
     negativeKeywords = "",
     commentString = "";
