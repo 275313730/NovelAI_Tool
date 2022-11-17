@@ -6,6 +6,7 @@ function handleEnv(app) {
   const STATIC_PATH = path.resolve(APP_PATH, "./dist");
   const ROOT_PATH = app.isPackaged ? path.resolve(APP_PATH, "../../") : APP_PATH;
   const APP_CONFIG_PATH = path.resolve(APP_PATH, "./app.config.json");
+  const SETTINGS_PATH = path.resolve(APP_PATH, "./settings.json");
   const DATA_PATH = path.resolve(APP_PATH, "./data");
   const IMAGES_PATH = path.resolve(ROOT_PATH, "./images");
 
@@ -15,6 +16,7 @@ function handleEnv(app) {
       APP_PATH,
       STATIC_PATH,
       APP_CONFIG_PATH,
+      SETTINGS_PATH,
       IMAGES_PATH,
       DATA_PATH,
     },

@@ -80,15 +80,30 @@ export default {
       const res = await this.$axios.get("/checkUpdate");
       switch (res.data.status) {
         case -1:
-          console.log("检测不到更新数据");
+          const manuallyDownload = await ElMessageBox.confirm(
+            "无法获取最新版本数据",
+            "检查更新",
+            {
+              confirmButtonText: "手动下载",
+              cancelButtonText: "稍后重试",
+              type: "error",
+            }
+          );
+          if (manuallyDownload) {
+            this.$axios.get("/openGitee");
+          }
           break;
         case 0:
-          console.log("已经是最新版本");
+          await ElMessageBox.confirm("已经是最新版本", "检查更新", {
+            confirmButtonText: "确认",
+            showCancelButton: false,
+            type: "success",
+          });
           break;
         case 1:
           const isUpdate = await ElMessageBox.confirm(
             "检查到新版本,是否更新",
-            "success",
+            "检查更新",
             {
               confirmButtonText: "更新",
               cancelButtonText: "取消",
@@ -125,7 +140,7 @@ export default {
 <style>
 .row-wrapper {
   top: 50vh;
-  width: 100vw;
+  width: 100%;
   overflow: hidden;
   position: absolute;
   transform: translateY(-60%);

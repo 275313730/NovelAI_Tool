@@ -2,11 +2,11 @@ const bodyParser = require("body-parser");
 const jsonParser = bodyParser.json();
 
 const { checkImageDirs, getImagesData } = require("./image");
-const { getUserSettings, modifyUserSettings } = require("./userSettings");
+const { getSettings, modifySettings } = require("./settings");
 const { loadTags, loadTagsInclude } = require("./tag");
 const { downloadOnedriveData, getDownloadProgress } = require("./onedrive");
 const { checkUpdate, updateTool } = require("./update");
-const { async } = require("node-stream-zip");
+const { openGitee } = require("./utils");
 
 function initAPI(app, env) {
   app.get("/", (req, res) => {
@@ -22,11 +22,11 @@ function initAPI(app, env) {
   });
 
   app.get("/userSettings", (req, res) => {
-    res.send(getUserSettings(env));
+    res.send(getSettings(env));
   });
 
   app.post("/userSettings", jsonParser, (req, res) => {
-    res.send(modifyUserSettings(env, req.body));
+    res.send(modifySettings(env, req.body));
   });
 
   app.get("/tags", (req, res) => {
@@ -37,10 +37,9 @@ function initAPI(app, env) {
     res.send(loadTagsInclude(env));
   });
 
-  app.get("/downloadOnedriveData", (req, res) => {
-    downloadOnedriveData(env, (status) => {
-      res.send(status);
-    });
+  app.get("/downloadOnedriveData", async (req, res) => {
+    const status = await downloadOnedriveData(env);
+    res.send(status);
   });
 
   app.get("/downloadProgress", (req, res) => {
@@ -60,6 +59,10 @@ function initAPI(app, env) {
   app.get("/relaunch", (req, res) => {
     env.app.relaunch();
     env.app.exit(0);
+  });
+
+  app.get("/openGitee", (req, res) => {
+    openGitee();
   });
 }
 

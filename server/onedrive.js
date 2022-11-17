@@ -1,6 +1,7 @@
 const request = require("request");
 const fs = require("fs");
 const path = require("path");
+const { resolve } = require("path");
 
 const fileListApi = "https://www.roanne.fun/fileList";
 const fileListVersionApi = "https://www.roanne.fun/fileListVersion";
@@ -10,42 +11,62 @@ let currentDownloadThreads = 1;
 let currentCount = -1;
 let fileListCount = 0;
 
-function downloadOnedriveData(env, callback) {
-  getFileList(env, (data) => {
-    if (data == false) return callback(false);
+async function downloadOnedriveData(env) {
+  return new Promise(async (resolve) => {
+    const data = await getFileList(env);
+    if (!data) return resolve(false);
     fileListCount = data.length;
     tryDownloadImage(env, data, () => {
       currentCount = -1;
-      callback(true);
+      resolve(true);
     });
   });
 }
 
-function getFileList(env, callback) {
-  const fileListPath = path.resolve(env.paths.DATA_PATH, "./fileList.json");
-  const APP_CONFIG_PATH = env.paths.APP_CONFIG_PATH;
-  let appConfig = JSON.parse(fs.readFileSync(APP_CONFIG_PATH));
+async function getFileList(env) {
+  return new Promise((resolve) => {
+    const fileListPath = path.resolve(env.paths.DATA_PATH, "./fileList.json");
+    const APP_CONFIG_PATH = env.paths.APP_CONFIG_PATH;
+    let appConfig = JSON.parse(fs.readFileSync(APP_CONFIG_PATH));
 
-  request(fileListVersionApi, (err, res, body) => {
-    if (err) return callback(false);
+    request(fileListVersionApi, async (err, res, body) => {
+      if (err) return resolve(false);
 
-    const version = Number(JSON.parse(body).version);
-    if (version !== 0 && env.version != version) {
-      request(fileListApi, (err, res, body) => {
-        if (err) return callback(false);
-
-        if (appConfig.isPackaged) {
-          let appConfig = JSON.parse(fs.readFileSync(APP_CONFIG_PATH));
-          appConfig.fileListVersion = version;
-          fs.writeFileSync(APP_CONFIG_PATH, JSON.stringify(appConfig));
+      const version = Number(JSON.parse(body).version);
+      if (version !== 0 && env.version != version) {
+        const fileListRes = await downloadFileList(env, appConfig);
+        if (fileListRes.status) {
+          if (appConfig.isPackaged) {
+            let appConfig = JSON.parse(fs.readFileSync(APP_CONFIG_PATH));
+            appConfig.fileListVersion = version;
+            fs.writeFileSync(APP_CONFIG_PATH, JSON.stringify(appConfig));
+          }
+          fs.writeFileSync(fileListPath, fileListRes.data);
+          resolve(JSON.parse(fileListRes.data));
+        } else {
+          resolve(false);
         }
-        fs.writeFileSync(fileListPath, body);
-        callback(JSON.parse(body));
-      });
-    } else {
-      const data = fs.readFileSync(fileListPath);
-      callback(JSON.parse(data));
-    }
+      } else {
+        const data = fs.readFileSync(fileListPath);
+        resolve(JSON.parse(data));
+      }
+    });
+  });
+}
+
+async function downloadFileList() {
+  return new Promise((resolve) => {
+    request(fileListApi, (err, res, body) => {
+      let fileListRes = {
+        status: false,
+        data: null,
+      };
+      if (!err) {
+        fileListRes.status = true;
+        fileListRes.data = body;
+      }
+      resolve(fileListRes);
+    });
   });
 }
 

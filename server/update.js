@@ -4,7 +4,6 @@ const request = require("request");
 const StreamZip = require("node-stream-zip");
 
 let updateInfo = {
-  status: 200,
   needUpdate: false,
   chooseUpdate: false,
   currentVersion: null,
@@ -35,19 +34,18 @@ async function checkUpdate(env, autoCheck) {
     const { githubSource, giteeSource } = appConfig.source;
 
     // 通过请求github的latest-release获取版本信息
-    await requestVersionFromGithub(githubSource, appConfig.version);
-
-    updateInfo.downloadUrl = `${giteeSource.url}${updateInfo.newVersion}/${updateInfo.newVersion}.zip`;
+    const status = await requestVersionFromGithub(githubSource, appConfig.version);
 
     if (env.isPackaged) {
       fs.writeFileSync(env.paths.APP_CONFIG_PATH, JSON.stringify(appConfig));
     }
 
-    if (updateInfo.status == 403 || updateInfo.status == 404) {
+    if (status == 403 || status == 404) {
       resolve({ status: -1 });
     } else if (updateInfo.newVersion == updateInfo.currentVersion) {
       resolve({ status: 0 });
     } else {
+      updateInfo.downloadUrl = `${giteeSource.url}${updateInfo.newVersion}/${updateInfo.newVersion}.zip`;
       resolve({ status: 1 });
     }
   });
@@ -55,24 +53,27 @@ async function checkUpdate(env, autoCheck) {
 
 async function requestVersionFromGithub(githubSource, version) {
   return new Promise((resolve) => {
-    request(githubSource.url, githubSource.options, (err, res, body) => {
-      if (err) throw err;
-      updateInfo.status = 200;
-      if (body.includes("403")) {
-        updateInfo.status = 403;
-      } else {
-        const data = JSON.parse(body);
-        if (data.message) {
-          updateInfo.status = 404;
+    try {
+      request(githubSource.url, githubSource.options, (err, res, body) => {
+        let status = 200;
+        if (body.includes("403")) {
+          status = 403;
         } else {
-          const currentVersion = Number(version.replace("v", "").replace(/\./g, ""));
-          const newVersion = Number(data.tag_name.replace("v", "").replace(/\./g, ""));
+          const data = JSON.parse(body);
+          if (data.message) {
+            status = 404;
+          } else {
+            const currentVersion = Number(version.replace("v", "").replace(/\./g, ""));
+            const newVersion = Number(data.tag_name.replace("v", "").replace(/\./g, ""));
 
-          if (newVersion > currentVersion) updateInfo.newVersion = data.tag_name;
+            if (newVersion > currentVersion) updateInfo.newVersion = data.tag_name;
+          }
         }
-      }
-      resolve();
-    });
+        resolve(status);
+      });
+    } catch (error) {
+      resolve(404);
+    }
   });
 }
 
