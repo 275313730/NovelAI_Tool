@@ -1,4 +1,5 @@
 const child_process = require("child_process");
+const path = require("path");
 
 function openGitee() {
   const url = "https://gitee.com/Roanne/NovelAI_Tool";

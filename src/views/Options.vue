@@ -35,7 +35,7 @@ export default {
     return {
       downloadProgress: 0,
       downloading: false,
-      checking: false,
+      checkingUpdate: false,
     };
   },
   computed: {
@@ -75,8 +75,8 @@ export default {
       }, 1000);
     },
     async checkUpdate() {
-      if (this.checking) return;
-      this.checking = true;
+      if (this.checkingUpdate) return;
+      this.checkingUpdate = true;
       const res = await this.$axios.get("/checkUpdate");
       switch (res.data.status) {
         case -1:
@@ -86,6 +86,10 @@ export default {
             {
               confirmButtonText: "手动下载",
               cancelButtonText: "稍后重试",
+              showClose: false,
+              closeOnClickModal: false,
+              closeOnPressEscape: false,
+              closeOnHashChange: false,
               type: "error",
             }
           );
@@ -96,6 +100,10 @@ export default {
         case 0:
           await ElMessageBox.confirm("已经是最新版本", "检查更新", {
             confirmButtonText: "确认",
+            showClose: false,
+            closeOnClickModal: false,
+            closeOnPressEscape: false,
+            closeOnHashChange: false,
             showCancelButton: false,
             type: "success",
           });
@@ -107,6 +115,10 @@ export default {
             {
               confirmButtonText: "更新",
               cancelButtonText: "取消",
+              showClose: false,
+              closeOnClickModal: false,
+              closeOnPressEscape: false,
+              closeOnHashChange: false,
               type: "info",
             }
           );
@@ -115,6 +127,7 @@ export default {
           }
           break;
       }
+      this.checkingUpdate = false;
     },
     async updateTool() {
       const res = await this.$axios.get("/updateTool");

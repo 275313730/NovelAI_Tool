@@ -91,7 +91,7 @@
           label="类型"
         ></el-table-column>
         <el-table-column
-          width="150"
+          width="200"
           property="value"
           label="数据"
         ></el-table-column>
@@ -121,41 +121,8 @@ export default {
         type: "warning",
       });
     },
-    formatKeyword(keyword) {
-      keyword = keyword.trim().toLowerCase();
-      let formatElements = ["{", "}", "(", ")", "[", "]"];
-      for (let ele of formatElements) {
-        while (keyword.includes(ele)) keyword = keyword.replace(ele, "");
-      }
-      return keyword;
-    },
     getClassifyPrompt() {
       return classifyPrompt(this.image.description, this.tagsData);
-    },
-    exactMatch(keyword) {
-      const { allTagsIndex } = this.tagsData;
-      return Math.max(
-        ...[
-          allTagsIndex.indexOf(keyword),
-          allTagsIndex.indexOf(keyword.replace("_", " ")),
-          allTagsIndex.indexOf(keyword.replace("-", " ")),
-          allTagsIndex.indexOf(keyword.replace(" ", " ")),
-        ]
-      );
-    },
-    fuzzyMatch(keyword) {
-      const { tagsIncludeIndex } = this.tagsData;
-      for (let i in tagsIncludeIndex) {
-        const tagName = tagsIncludeIndex[i];
-        let splitBy = " ";
-        if (keyword.includes("_")) splitBy = "_";
-        if (keyword.includes("-")) splitBy = "-";
-        let keywordSplitArray = keyword.split(splitBy);
-        if (keywordSplitArray.includes(tagName)) {
-          return i;
-        }
-      }
-      return -1;
     },
     getMetadata() {
       let filterKeys = [

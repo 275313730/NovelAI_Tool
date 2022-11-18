@@ -1,24 +1,21 @@
 <template>
   <div id="app">
-    <Background :tagsData="tagsData" />
     <el-container style="height: 100vh">
       <el-aside width="auto">
         <Menu :view="view" />
       </el-aside>
       <el-container>
         <el-main>
-          <el-scrollbar>
-            <Home v-show="view.currentView == 'home'" />
-            <Gallery
-              v-show="view.currentView == 'gallery'"
-              :tagsData="tagsData"
-            />
-            <Analysis
-              v-show="view.currentView == 'analysis'"
-              :tagsData="tagsData"
-            />
-            <Options v-show="view.currentView == 'options'" />
-          </el-scrollbar>
+          <Home v-show="view.currentView == 'home'" />
+          <Gallery
+            v-show="view.currentView == 'gallery'"
+            :tagsData="tagsData"
+          />
+          <Analysis
+            v-show="view.currentView == 'analysis'"
+            :tagsData="tagsData"
+          />
+          <Options v-show="view.currentView == 'options'" />
         </el-main>
       </el-container>
     </el-container>
@@ -29,9 +26,9 @@
 import Gallery from "./views/Gallery.vue";
 import Home from "./views/Home.vue";
 import Analysis from "./views/Analysis.vue";
-import Background from "./components/Background.vue";
 import Menu from "./components/Menu.vue";
 import Options from "./views/Options.vue";
+import getTags from "./utils/getTags";
 
 export default {
   name: "App",
@@ -39,12 +36,11 @@ export default {
     Gallery,
     Home,
     Analysis,
-    Background,
     Menu,
-    Analysis,
-    Background,
     Options,
-    Home,
+  },
+  async mounted() {
+    this.tagsData = await getTags();
   },
   data() {
     return {

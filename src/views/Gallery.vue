@@ -14,11 +14,12 @@
       />
       <search-input
         @searchImage="searchImage"
+        @reload="reload"
         :allKeywordsArray="allKeywordsArray"
         :filterSettings="filterSettings"
       />
       <div id="images-wrapper" class="demo-image__preview">
-        <el-row class="infinite-list" style="overflow: auto">
+        <el-row>
           <el-col
             :span="24 / userSettings.rowLimitCount"
             v-for="i in imagesCount"
@@ -90,7 +91,7 @@ export default {
   },
   mounted() {
     this.checkImageDirs();
-    window.addEventListener("scroll", this.scrollLoad);
+    this.initScrollEvent();
   },
   methods: {
     async checkImageDirs() {
@@ -128,27 +129,34 @@ export default {
         this.getImagesData(arrayIndex + 1, realIndex + 1);
       }
     },
-    getImagesMaxCount() {
-      /*       return Math.min(
-        this.userSettings.imagesLimitCount,
-        this.currentImages.length
-      ); */
-      return this.currentImages.length;
-    },
     initImages() {
-      /*       let sliceNum = Math.min(
-        this.userSettings.imagesLimitCount,
-        this.imagesCache.length
-      );
-      this.currentImages = this.imagesCache.slice(0, sliceNum); */
       this.currentImages = this.imagesCache;
       if (this.imagesCount < this.userSettings.rowLimitCount * 3) {
         this.scrollLoad();
       }
     },
+    initScrollEvent() {
+      var scrollFunc = (e) => {
+        var e = e || window.event;
+        if (e.wheelDelta) {
+          if (e.wheelDelta < 0) {
+            this.scrollLoad();
+          }
+        } else if (e.detail) {
+          if (e.detail > 0) {
+            this.scrollLoad();
+          }
+        }
+      };
+      // 给页面绑定鼠标滚轮事件,针对火狐的非标准事件
+      window.addEventListener("DOMMouseScroll", scrollFunc);
+      // 给页面绑定鼠标滚轮事件，针对Google，mousewheel非标准事件已被弃用，请使用 wheel事件代替
+      window.addEventListener("wheel", scrollFunc);
+      // ie不支持wheel事件，若一定要兼容，可使用mousewheel
+      window.addEventListener("mousewheel", scrollFunc);
+    },
     scrollLoad() {
-      let maxCount = this.getImagesMaxCount();
-      let restCount = maxCount - this.imagesCount;
+      let restCount = this.currentImages.length - this.imagesCount;
       if (restCount == 0) return;
       if (restCount < this.userSettings.rowLimitCount * 3) {
         this.imagesCount += restCount;
@@ -198,7 +206,7 @@ export default {
         this.showingError = true;
         let message = this.$message({
           showClose: true,
-          message: "图片加载出错，请检查图片位置或json文件是否有误！",
+          message: "图片加载出错，请检查图片完整性",
           type: "error",
         });
         message.onClose = () => {
@@ -233,15 +241,20 @@ export default {
       this.imagesUrlArray = this.getImagesUrlArray();
       this.scrollLoad(true);
     },
+    async reload() {
+      this.imagesCache = [];
+      this.currentImages = [];
+      this.imagesCount = 0;
+      this.imagesUrlArray = [];
+      this.loadSettings.imageDirs = [];
+      this.loadSettings.loadingDir = false;
+      await this.checkImageDirs();
+    },
   },
 };
 </script>
 
 <style>
-#filter-button {
-  margin-left: 10px;
-}
-
 #images-wrapper {
   padding-top: 50px;
 }

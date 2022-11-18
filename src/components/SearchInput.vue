@@ -1,6 +1,6 @@
 <template>
-  <el-row id="input-row" maxlength="225" class="demo-autocomplete">
-    <el-col id="input-col" :span="24">
+  <el-row id="input-row">
+    <el-col>
       <el-autocomplete
         class="inline-input"
         v-model="state"
@@ -18,12 +18,10 @@
         @click="searchImage"
         >搜索</el-button
       >
-      <el-button
-        @click="filterSettings.isShow = true"
-        id="filter-button"
-        icon="Filter"
+      <el-button @click="filterSettings.isShow = true" icon="Filter"
         >Tag筛选</el-button
       >
+      <el-button @click="reload" icon="refresh">重载图库</el-button>
     </el-col>
   </el-row>
 </template>
@@ -69,6 +67,9 @@ export default {
     searchImage() {
       this.$emit("searchImage", this.state.split(","));
     },
+    reload() {
+      this.$emit("reload");
+    },
   },
 };
 </script>
@@ -87,10 +88,6 @@ export default {
 }
 
 .el-autocomplete {
-  width: 50%;
-}
-
-#check-button {
-  margin-left: 10px;
+  width: 40%;
 }
 </style>

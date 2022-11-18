@@ -23,10 +23,5 @@
   "appSettings": {
     "width": 800,
     "height": 600
-  },
-  "userSettings": {
-    "imagesLimitCount": 200,
-    "rowLimitCount": 3,
-    "classifyPrompt": true
   }
 }
